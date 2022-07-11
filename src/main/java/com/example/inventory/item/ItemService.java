@@ -4,7 +4,10 @@ import org.springframework.data.map.repository.config.EnableMapRepositories;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service for fetching {@link Item}s from the {@link ItemRepository}
@@ -21,7 +24,7 @@ public class ItemService {
      */
     public ItemService(final CrudRepository<Item, Long> repository) {
         this.repository = repository;
-
+        this.repository.saveAll(defaultItems());
     }
 
     /**
@@ -39,4 +42,58 @@ public class ItemService {
                         "https://cdn.auth0.com/blog/whatabyte/tea-sm.png")
         );
     }
+
+    /**
+     * Find all items
+     * @return list of items
+     */
+    public List<Item> findAll() {
+        List<Item> list = new ArrayList<>();
+        Iterable<Item> items = repository.findAll();
+        items.forEach(list::add);
+        return list;
+    }
+
+    /**
+     * Find item using an id
+     * @param id the id to use
+     * @return found item
+     */
+    public Optional<Item> find(final Long id) {
+        return repository.findById(id);
+    }
+
+    /**
+     * Create an item
+     * @param item item to be created
+     * @return created item
+     */
+    public Item create(final Item item) {
+        //TODO: Change the Item id to be of type UUID..
+        final Item copy = new Item(new Date().getTime(), item.getName(), item.getPrice(),
+                item.getDescription(), item.getImage());
+        return repository.save(copy);
+    }
+
+    /**
+     * Update an item
+     * @param id the id of the item to be updated
+     * @param newItem the new item
+     * @return updated item
+     */
+    public Optional<Item> update(final Long id, final Item newItem) {
+        return repository.findById(id).map(oldItem -> {
+            final Item updated = oldItem.updateWith(newItem);
+            return repository.save(updated);
+        });
+    }
+
+    /**
+     * Delete an item
+     * @param id the item to be deleted
+     */
+    public void delete(final Long id) {
+        repository.deleteById(id);
+    }
+
 }
