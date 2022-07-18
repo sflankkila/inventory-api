@@ -1,6 +1,11 @@
 package com.example.inventory.item;
 
+import org.hibernate.validator.constraints.URL;
 import org.springframework.data.annotation.Id;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Positive;
 
 /**
  * DTO for containing information about an Item
@@ -8,9 +13,17 @@ import org.springframework.data.annotation.Id;
 public class Item {
 
     private final Long id;
+    @NotNull(message = "name is required")
+    @Pattern(regexp = "^[a-zA-Z ]+$", message = "name must be a string")
     private final String name;
+    @NotNull(message = "price is required")
+    @Positive(message = "price must be positive")
     private final Long price;
+    @NotNull
+    @Pattern(regexp = "^[a-zA-Z ]+$", message = "description must be a string")
     private final String description;
+    @NotNull(message = "image is required")
+    @URL(message = "image must be a URL")
     private final String image;
 
     /**
